@@ -58,4 +58,54 @@ public class JcrController {
             session.logout();
         }
     }
+
+    @PostMapping("/nodes")
+    public void addNode(@RequestParam String parentPath, @RequestParam String nodeName) throws RepositoryException {
+        Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
+        try {
+            Node parentNode = session.getNode(parentPath);
+            parentNode.addNode(nodeName);
+            session.save();
+        } finally {
+            session.logout();
+        }
+    }
+
+    @DeleteMapping("/nodes")
+    public void deleteNode(@RequestParam String path) throws RepositoryException {
+        Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
+        try {
+            Node node = session.getNode(path);
+            node.remove();
+            session.save();
+        } finally {
+            session.logout();
+        }
+    }
+
+    @PostMapping("/properties")
+    public void setProperty(@RequestParam String path, @RequestParam String name, @RequestParam String value) throws RepositoryException {
+        Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
+        try {
+            Node node = session.getNode(path);
+            node.setProperty(name, value);
+            session.save();
+        } finally {
+            session.logout();
+        }
+    }
+
+    @DeleteMapping("/properties")
+    public void deleteProperty(@RequestParam String path, @RequestParam String name) throws RepositoryException {
+        Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
+        try {
+            Node node = session.getNode(path);
+            if (node.hasProperty(name)) {
+                node.getProperty(name).remove();
+                session.save();
+            }
+        } finally {
+            session.logout();
+        }
+    }
 }

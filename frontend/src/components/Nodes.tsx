@@ -11,10 +11,12 @@ interface NodeItemProps {
   node: JcrNode;
   onSelect: (path: string) => void;
   fetchChildren: (path: string) => Promise<JcrNode[]>;
+  onAddNode: (parentPath: string, nodeName: string) => Promise<void>;
+  onDeleteNode: (path: string) => Promise<void>;
   isRoot?: boolean;
 }
 
-const NodeItem: React.FC<NodeItemProps> = ({ node, onSelect, fetchChildren, isRoot }) => {
+const NodeItem: React.FC<NodeItemProps> = ({ node, onSelect, fetchChildren, onAddNode, onDeleteNode, isRoot }) => {
   const [expanded, setExpanded] = useState(isRoot ? true : false);
   const [children, setChildren] = useState<JcrNode[]>(node.children || []);
   const [loading, setLoading] = useState(false);
@@ -48,6 +50,29 @@ const NodeItem: React.FC<NodeItemProps> = ({ node, onSelect, fetchChildren, isRo
     onSelect(node.path);
   };
 
+  const handleAddChild = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const name = prompt('Enter new node name:');
+    if (name) {
+      await onAddNode(node.path, name);
+      // Refresh children after adding
+      const fetchedChildren = await fetchChildren(node.path);
+      setChildren(fetchedChildren);
+      setHasFetched(true);
+      setExpanded(true);
+    }
+  };
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (window.confirm(`Are you sure you want to delete node ${node.name}?`)) {
+      await onDeleteNode(node.path);
+      // We can't easily refresh the parent's children from here without a refresh callback
+      // but App.tsx will likely handle a global refresh or the user can manually re-expand
+      alert('Node deleted. Please refresh or re-expand parent.');
+    }
+  };
+
   return (
     <li className="node-item">
       <div className="node-row">
@@ -66,6 +91,10 @@ const NodeItem: React.FC<NodeItemProps> = ({ node, onSelect, fetchChildren, isRo
         >
           <span>{node.name}</span>
         </div>
+        <button className="action-button add" onClick={handleAddChild} title="Add Child Node">+</button>
+        {!isRoot && (
+          <button className="action-button delete" onClick={handleDelete} title="Delete Node">×</button>
+        )}
       </div>
       {expanded && (
         <ul className="nodes-list nested">
@@ -75,9 +104,12 @@ const NodeItem: React.FC<NodeItemProps> = ({ node, onSelect, fetchChildren, isRo
           )}
           {children.map((child) => (
             <NodeItem
+              key={child.path}
               node={child}
               onSelect={onSelect}
               fetchChildren={fetchChildren}
+              onAddNode={onAddNode}
+              onDeleteNode={onDeleteNode}
             />
           ))}
         </ul>
@@ -90,9 +122,11 @@ interface NodesProps {
   initialNodes: JcrNode[];
   onSelect: (path: string) => void;
   fetchChildren: (path: string) => Promise<JcrNode[]>;
+  onAddNode: (parentPath: string, nodeName: string) => Promise<void>;
+  onDeleteNode: (path: string) => Promise<void>;
 }
 
-const Nodes: React.FC<NodesProps> = ({ initialNodes, onSelect, fetchChildren }) => {
+const Nodes: React.FC<NodesProps> = ({ initialNodes, onSelect, fetchChildren, onAddNode, onDeleteNode }) => {
   const styles = `
     .nodes-sidebar { flex: 0 0 300px; max-width: 400px; min-width: 250px; border-right: 1px solid #ccc; padding-right: 20px; overflow-x: auto; }
     .nodes-sidebar h3 { margin-top: 0; }
@@ -106,6 +140,10 @@ const Nodes: React.FC<NodesProps> = ({ initialNodes, onSelect, fetchChildren }) 
     .node-link { flex: 1; display: flex; align-items: center; justify-content: space-between; padding: 4px 8px; border-radius: 4px; border: 1px solid transparent; color: #2e7d32; text-decoration: none; cursor: pointer; transition: all 0.15s ease; }
     .node-link:hover, .node-link:focus { background: #e8f5e9; border-color: #c8e6c9; outline: none; }
     .node-item.loading { padding-left: 28px; font-size: 12px; color: #888; font-style: italic; }
+    .action-button { background: none; border: none; cursor: pointer; padding: 0 6px; font-size: 16px; visibility: hidden; }
+    .node-row:hover .action-button { visibility: visible; }
+    .action-button.add { color: #2e7d32; }
+    .action-button.delete { color: #d32f2f; }
   `;
 
   return (
@@ -119,6 +157,8 @@ const Nodes: React.FC<NodesProps> = ({ initialNodes, onSelect, fetchChildren }) 
            node={{ name: 'root', path: '/', hasNodes: true }}
            onSelect={onSelect}
            fetchChildren={fetchChildren}
+           onAddNode={onAddNode}
+           onDeleteNode={onDeleteNode}
            isRoot={true}
         />
       </ul>
