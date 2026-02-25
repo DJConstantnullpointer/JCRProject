@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Nodes, { JcrNode } from './components/Nodes';
 import Properties from './components/Properties';
+import { commonStyles } from './styles';
 
 const App: React.FC = () => {
   const [properties, setProperties] = useState<Record<string, string>>({});
@@ -81,10 +82,10 @@ const App: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <div style={commonStyles.appContainer}>
       <h1>JCR Browser</h1>
 
-      <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+      <div style={commonStyles.flexAlignStart}>
         <Nodes 
           initialNodes={[]} 
           onSelect={onNodeSelect} 
@@ -92,7 +93,7 @@ const App: React.FC = () => {
           onAddNode={handleAddNode}
           onDeleteNode={handleDeleteNode}
         />
-        <div style={{ flex: 1, marginLeft: '20px' }}>
+        <div style={commonStyles.mainContent}>
           {loadingProps ? (
             <p>Loading properties...</p>
           ) : (

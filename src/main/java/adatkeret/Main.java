@@ -18,13 +18,17 @@ public class Main {
         Session session = repository.login(
                 new SimpleCredentials("admin", "admin".toCharArray()));
         try {
-            Node root = session.getRootNode();
-            Node node = root.addNode("helloworld");
-            node.setProperty("message", "Hello World!");
-            session.save();
+            createHelloWorld(session);
         } finally {
             session.logout();
         }
+    }
+
+    private static void createHelloWorld(Session session) throws RepositoryException {
+        Node root = session.getRootNode();
+        Node node = root.addNode("helloworld");
+        node.setProperty("message", "Hello World!");
+        session.save();
     }
 
     private static void xmlImport(Session session) throws RepositoryException, IOException {
