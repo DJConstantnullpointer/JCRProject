@@ -1,4 +1,4 @@
-package adatkeret;
+package hu.educatio.jcr;
 
 import org.apache.jackrabbit.commons.JcrUtils;
 
