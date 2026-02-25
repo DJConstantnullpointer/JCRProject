@@ -5,38 +5,36 @@ import Properties from './components/Properties';
 
 const App: React.FC = () => {
   const [currentPath, setCurrentPath] = useState('/');
-  const [nodes, setNodes] = useState<JcrNode[]>([]);
   const [properties, setProperties] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(false);
+  const [loadingProps, setLoadingProps] = useState(false);
 
-  const fetchNodes = async (path: string) => {
-    setLoading(true);
+  const fetchChildren = async (path: string): Promise<JcrNode[]> => {
     try {
       const response = await axios.get(`http://localhost:8080/api/nodes?path=${encodeURIComponent(path)}`);
-      setNodes(response.data);
-      
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching nodes:', error);
+      return [];
+    }
+  };
+
+  const fetchProperties = async (path: string) => {
+    setLoadingProps(true);
+    try {
       const propResponse = await axios.get(`http://localhost:8080/api/properties?path=${encodeURIComponent(path)}`);
       setProperties(propResponse.data);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Error fetching properties:', error);
     }
-    setLoading(false);
+    setLoadingProps(false);
   };
 
   useEffect(() => {
-    fetchNodes(currentPath);
+    fetchProperties(currentPath);
   }, [currentPath]);
 
-  const navigateTo = (path: string) => {
+  const onNodeSelect = (path: string) => {
     setCurrentPath(path);
-  };
-
-  const goUp = () => {
-    if (currentPath === '/') return;
-    const parts = currentPath.split('/');
-    parts.pop();
-    const parentPath = parts.join('/') || '/';
-    setCurrentPath(parentPath);
   };
 
   return (
@@ -44,19 +42,18 @@ const App: React.FC = () => {
       <h1>JCR Browser</h1>
       <div style={{ marginBottom: '10px' }}>
         <strong>Current Path:</strong> {currentPath}
-        {currentPath !== '/' && (
-          <button onClick={goUp} style={{ marginLeft: '10px' }}>Go Up</button>
-        )}
       </div>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <div style={{ display: 'flex' }}>
-          <Nodes nodes={nodes} onNavigate={navigateTo} />
-          <Properties properties={properties} />
+      <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+        <Nodes initialNodes={[]} onSelect={onNodeSelect} fetchChildren={fetchChildren} />
+        <div style={{ flex: 1, marginLeft: '20px' }}>
+          {loadingProps ? (
+            <p>Loading properties...</p>
+          ) : (
+            <Properties properties={properties} />
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };
