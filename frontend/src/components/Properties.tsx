@@ -1,5 +1,17 @@
 import React, { useState } from 'react';
-import { commonStyles } from '../styles';
+import { 
+  containerWithPadding, 
+  flexSpaceBetween, 
+  buttonPrimary, 
+  table, 
+  tableHeader, 
+  tableCell, 
+  buttonAction, 
+  buttonDelete, 
+  fullWidthInput, 
+  buttonSmallPrimary, 
+  buttonSmallDelete 
+} from '../styles';
 
 interface PropertiesProps {
   path: string;
@@ -50,39 +62,39 @@ const Properties: React.FC<PropertiesProps> = ({ path, properties, onSetProperty
   };
 
   return (
-    <div style={commonStyles.containerWithPadding}>
-      <div style={commonStyles.flexSpaceBetween}>
+    <div style={containerWithPadding}>
+      <div style={flexSpaceBetween}>
         <h3>Properties for {path}</h3>
         <button 
           onClick={handleAddProperty}
-          style={commonStyles.buttonPrimary}
+          style={buttonPrimary}
         >
           Add Property
         </button>
       </div>
-      <table style={commonStyles.table} cellPadding={5}>
+      <table style={table} cellPadding={5}>
         <thead>
           <tr style={{ backgroundColor: '#f5f5f5' }}>
-            <th style={commonStyles.tableHeader}>Name</th>
-            <th style={commonStyles.tableHeader}>Value</th>
-            <th style={commonStyles.tableHeader}>Actions</th>
+            <th style={tableHeader}>Name</th>
+            <th style={tableHeader}>Value</th>
+            <th style={tableHeader}>Actions</th>
           </tr>
         </thead>
         <tbody>
           {Object.entries(properties).map(([name, value]) => (
             <tr key={name}>
-              <td style={commonStyles.tableCell}>{name}</td>
-              <td style={commonStyles.tableCell}>{value}</td>
-              <td style={commonStyles.tableCell}>
+              <td style={tableCell}>{name}</td>
+              <td style={tableCell}>{value}</td>
+              <td style={tableCell}>
                 <button 
                   onClick={() => handleEditProperty(name, value)}
-                  style={commonStyles.buttonAction}
+                  style={buttonAction}
                 >
                   Edit
                 </button>
                 <button 
                   onClick={() => handleDeleteProperty(name)}
-                  style={commonStyles.buttonDelete}
+                  style={buttonDelete}
                 >
                   Delete
                 </button>
@@ -91,34 +103,34 @@ const Properties: React.FC<PropertiesProps> = ({ path, properties, onSetProperty
           ))}
           {isAdding && (
             <tr>
-              <td style={commonStyles.tableCell}>
+              <td style={tableCell}>
                 <input 
                   type="text" 
                   value={newName} 
                   onChange={(e) => setNewName(e.target.value)} 
                   placeholder="Property Name"
-                  style={commonStyles.fullWidthInput}
+                  style={fullWidthInput}
                 />
               </td>
-              <td style={commonStyles.tableCell}>
+              <td style={tableCell}>
                 <input 
                   type="text" 
                   value={newValue} 
                   onChange={(e) => setNewValue(e.target.value)} 
                   placeholder="Property Value"
-                  style={commonStyles.fullWidthInput}
+                  style={fullWidthInput}
                 />
               </td>
-              <td style={commonStyles.tableCell}>
+              <td style={tableCell}>
                 <button 
                   onClick={handleSaveNewProperty}
-                  style={commonStyles.buttonSmallPrimary}
+                  style={buttonSmallPrimary}
                 >
                   Save
                 </button>
                 <button 
                   onClick={handleCancelAddProperty}
-                  style={commonStyles.buttonSmallDelete}
+                  style={buttonSmallDelete}
                 >
                   Cancel
                 </button>

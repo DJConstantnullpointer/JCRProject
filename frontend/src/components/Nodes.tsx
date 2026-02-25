@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { commonStyles } from '../styles';
+import { flexSpaceBetween } from '../styles';
 
 export interface JcrNode {
   name: string;
@@ -150,7 +150,7 @@ const Nodes: React.FC<NodesProps> = ({ initialNodes, onSelect, fetchChildren, on
   return (
     <div className="nodes-sidebar">
       <style>{styles}</style>
-      <div style={commonStyles.flexSpaceBetween}>
+      <div style={flexSpaceBetween}>
         <h3>Nodes</h3>
       </div>
       <ul className="nodes-list">
