@@ -6,6 +6,8 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 .kotlin
+derby.log
+jackrabbit/
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
