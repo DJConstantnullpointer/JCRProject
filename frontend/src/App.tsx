@@ -4,7 +4,6 @@ import Nodes, { JcrNode } from './components/Nodes';
 import Properties from './components/Properties';
 
 const App: React.FC = () => {
-  const [currentPath, setCurrentPath] = useState('/');
   const [properties, setProperties] = useState<Record<string, string>>({});
   const [loadingProps, setLoadingProps] = useState(false);
 
@@ -30,19 +29,16 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchProperties(currentPath);
-  }, [currentPath]);
+    fetchProperties('/');
+  }, []);
 
   const onNodeSelect = (path: string) => {
-    setCurrentPath(path);
+    fetchProperties(path);
   };
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
       <h1>JCR Browser</h1>
-      <div style={{ marginBottom: '10px' }}>
-        <strong>Current Path:</strong> {currentPath}
-      </div>
 
       <div style={{ display: 'flex', alignItems: 'flex-start' }}>
         <Nodes initialNodes={[]} onSelect={onNodeSelect} fetchChildren={fetchChildren} />

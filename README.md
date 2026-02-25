@@ -57,25 +57,6 @@ This project is a Spring Boot application that provides a web-based browser for 
    ```
    The frontend will be available at `http://localhost:3000`.
 
-## API Endpoints
-
-The backend provides the following REST endpoints:
-
-- **GET `/api/nodes?path={path}`**: Retrieves a list of child nodes for the specified path. Default path is `/`.
-- **GET `/api/properties?path={path}`**: Retrieves all properties for the node at the specified path.
-
-## Project Structure
-
-- `src/main/java/adatkeret/JcrApplication.java`: Main entry point for the Spring Boot application.
-- `src/main/java/adatkeret/JcrController.java`: REST controller for JCR operations.
-- `src/main/java/adatkeret/Main.java`: Standalone JCR example (demonstrates basic node creation and XML import).
-- `frontend/`: Contains the React application.
-  - `src/App.tsx`: Main React component.
-  - `src/components/Nodes.tsx`: Component for displaying and navigating nodes.
-  - `src/components/Properties.tsx`: Component for displaying node properties.
-- `pom.xml`: Maven configuration with all dependencies.
-- `test.xml`: Sample XML file for JCR import.
-
 ## License
 
 This project is for educational purposes.
