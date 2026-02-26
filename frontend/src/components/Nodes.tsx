@@ -155,7 +155,7 @@ const Nodes: React.FC<NodesProps> = ({ initialNodes, onSelect, fetchChildren, on
       </div>
       <ul className="nodes-list">
         <NodeItem
-           node={{ name: 'root', path: '/', hasNodes: true }}
+           node={{ name: 'oh', path: '/oh', hasNodes: true }}
            onSelect={onSelect}
            fetchChildren={fetchChildren}
            onAddNode={onAddNode}

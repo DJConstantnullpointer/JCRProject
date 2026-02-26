@@ -7,7 +7,7 @@ import { appContainer, flexAlignStart, mainContent } from './styles';
 const App: React.FC = () => {
   const [properties, setProperties] = useState<Record<string, string>>({});
   const [loadingProps, setLoadingProps] = useState(false);
-  const [selectedPath, setSelectedPath] = useState('/');
+  const [selectedPath, setSelectedPath] = useState('/oh');
 
   const fetchChildren = async (path: string): Promise<JcrNode[]> => {
     try {
@@ -52,8 +52,8 @@ const App: React.FC = () => {
     try {
       await axios.delete(`http://localhost:8080/api/nodes?path=${encodeURIComponent(path)}`);
       if (selectedPath === path) {
-        setSelectedPath('/');
-        fetchProperties('/');
+        setSelectedPath('/oh');
+        fetchProperties('/oh');
       }
     } catch (error) {
       console.error('Error deleting node:', error);

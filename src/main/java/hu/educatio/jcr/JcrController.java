@@ -18,9 +18,10 @@ public class JcrController {
     private Repository repository;
 
     @GetMapping("/nodes")
-    public List<Map<String, Object>> getNodes(@RequestParam(defaultValue = "/") String path) throws RepositoryException {
+    public List<Map<String, Object>> getNodes(@RequestParam(defaultValue = "/oh") String path) throws RepositoryException {
         Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
         try {
+            path = getAdjustedPath(session, path);
             Node node = session.getNode(path);
             List<Map<String, Object>> result = new ArrayList<>();
             NodeIterator nodes = node.getNodes();
@@ -39,9 +40,10 @@ public class JcrController {
     }
 
     @GetMapping("/properties")
-    public Map<String, String> getProperties(@RequestParam String path) throws RepositoryException {
+    public Map<String, String> getProperties(@RequestParam(defaultValue = "/oh") String path) throws RepositoryException {
         Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
         try {
+            path = getAdjustedPath(session, path);
             Node node = session.getNode(path);
             Map<String, String> propertiesMap = new HashMap<>();
             PropertyIterator properties = node.getProperties();
@@ -60,9 +62,10 @@ public class JcrController {
     }
 
     @PostMapping("/nodes")
-    public void addNode(@RequestParam String parentPath, @RequestParam String nodeName) throws RepositoryException {
+    public void addNode(@RequestParam(defaultValue = "/oh") String parentPath, @RequestParam String nodeName) throws RepositoryException {
         Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
         try {
+            parentPath = getAdjustedPath(session, parentPath);
             Node parentNode = session.getNode(parentPath);
             parentNode.addNode(nodeName);
             session.save();
@@ -75,6 +78,10 @@ public class JcrController {
     public void deleteNode(@RequestParam String path) throws RepositoryException {
         Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
         try {
+            path = getAdjustedPath(session, path);
+            if ("/oh".equals(path)) {
+                return; // Cannot delete the root oh node
+            }
             Node node = session.getNode(path);
             node.remove();
             session.save();
@@ -84,9 +91,10 @@ public class JcrController {
     }
 
     @PostMapping("/properties")
-    public void setProperty(@RequestParam String path, @RequestParam String name, @RequestParam String value) throws RepositoryException {
+    public void setProperty(@RequestParam(defaultValue = "/oh") String path, @RequestParam String name, @RequestParam String value) throws RepositoryException {
         Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
         try {
+            path = getAdjustedPath(session, path);
             Node node = session.getNode(path);
             node.setProperty(name, value);
             session.save();
@@ -96,9 +104,10 @@ public class JcrController {
     }
 
     @DeleteMapping("/properties")
-    public void deleteProperty(@RequestParam String path, @RequestParam String name) throws RepositoryException {
+    public void deleteProperty(@RequestParam(defaultValue = "/oh") String path, @RequestParam String name) throws RepositoryException {
         Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
         try {
+            path = getAdjustedPath(session, path);
             Node node = session.getNode(path);
             if (node.hasProperty(name)) {
                 node.getProperty(name).remove();
@@ -107,5 +116,23 @@ public class JcrController {
         } finally {
             session.logout();
         }
+    }
+
+    private void ensureOhNode(Session session) throws RepositoryException {
+        Node root = session.getRootNode();
+        if (!root.hasNode("oh")) {
+            root.addNode("oh");
+            session.save();
+        }
+    }
+
+    private String getAdjustedPath(Session session, String path) throws RepositoryException {
+        ensureOhNode(session);
+        if ("/".equals(path)) {
+            return "/oh";
+        } else if (!path.startsWith("/oh")) {
+            return "/oh" + (path.startsWith("/") ? "" : "/") + path;
+        }
+        return path;
     }
 }
