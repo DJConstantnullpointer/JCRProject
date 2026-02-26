@@ -1,5 +1,7 @@
 package hu.educatio.jcr;
 
+import org.apache.jackrabbit.api.JackrabbitSession;
+import org.apache.jackrabbit.api.security.user.UserManager;
 import org.apache.jackrabbit.commons.JcrUtils;
 
 import javax.jcr.*;
@@ -15,13 +17,20 @@ public class Main {
      */
     public static void main(String[] args) throws Exception {
         Repository repository = JcrUtils.getRepository();
-        Session session = repository.login(
-                new SimpleCredentials("admin", "admin".toCharArray()));
+        JackrabbitSession session =
+                (JackrabbitSession)
+                        repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
         try {
-            createHelloWorld(session);
+            createUser(session);
         } finally {
             session.logout();
         }
+    }
+
+    private static void createUser(JackrabbitSession session) throws RepositoryException {
+        UserManager userManager = session.getUserManager();
+        userManager.createUser("test3", "test3");
+        session.save();
     }
 
     private static void createHelloWorld(Session session) throws RepositoryException {
@@ -43,20 +52,17 @@ public class Main {
 
             // Import the file "test.xml" under the created node
             FileInputStream xml = new FileInputStream("test.xml");
-            session.importXML(
-                    node.getPath(), xml, ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
+            session.importXML(node.getPath(), xml, ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
             xml.close();
             session.save();
             System.out.println("done.");
         }
 
-        //output the repository content
+        // output the repository content
         dump(root);
     }
 
-    /**
-     * Recursively outputs the contents of the given node.
-     */
+    /** Recursively outputs the contents of the given node. */
     private static void dump(Node node) throws RepositoryException {
         // First output the node path
         System.out.println(node.getPath());
@@ -73,13 +79,11 @@ public class Main {
                 // A multi-valued property, print all values
                 Value[] values = property.getValues();
                 for (Value value : values) {
-                    System.out.println(
-                            property.getPath() + " = " + value.getString());
+                    System.out.println(property.getPath() + " = " + value.getString());
                 }
             } else {
                 // A single-valued property
-                System.out.println(
-                        property.getPath() + " = " + property.getString());
+                System.out.println(property.getPath() + " = " + property.getString());
             }
         }
 
