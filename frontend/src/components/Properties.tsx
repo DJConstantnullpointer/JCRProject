@@ -15,15 +15,34 @@ import {
 
 interface PropertiesProps {
   path: string;
+  username: string;
   properties: Record<string, string>;
   onSetProperty: (path: string, name: string, value: string) => Promise<void>;
   onDeleteProperty: (path: string, name: string) => Promise<void>;
 }
 
-const Properties: React.FC<PropertiesProps> = ({ path, properties, onSetProperty, onDeleteProperty }) => {
+const Properties: React.FC<PropertiesProps> = ({ path, username, properties, onSetProperty, onDeleteProperty }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [newName, setNewName] = useState('');
   const [newValue, setNewValue] = useState('');
+
+  const getAuthLevel = (accessValue: string, user: string): string => {
+    if (user === 'admin') return 'ALL';
+    const parts = accessValue.split(';');
+    for (const part of parts) {
+      const [u, auth] = part.split(':');
+      if (u === user) return auth.toUpperCase();
+    }
+    return '';
+  };
+
+  const authLevel = path === '/oh' 
+    ? (username === 'admin' ? 'ALL' : 'VIEW')
+    : getAuthLevel(properties['access'] || '', username);
+
+  const canAdd = authLevel === 'ADD' || authLevel === 'EDIT' || authLevel === 'ALL';
+  const canEdit = authLevel === 'EDIT' || authLevel === 'ALL';
+  const canDelete = authLevel === 'ALL';
 
   const handleAddProperty = () => {
     setIsAdding(true);
@@ -65,12 +84,14 @@ const Properties: React.FC<PropertiesProps> = ({ path, properties, onSetProperty
     <div style={containerWithPadding}>
       <div style={flexSpaceBetween}>
         <h3>Properties for {path}</h3>
-        <button 
-          onClick={handleAddProperty}
-          style={buttonPrimary}
-        >
-          Add Property
-        </button>
+        {canAdd && (
+          <button 
+            onClick={handleAddProperty}
+            style={buttonPrimary}
+          >
+            Add Property
+          </button>
+        )}
       </div>
       <table style={table} cellPadding={5}>
         <thead>
@@ -86,18 +107,22 @@ const Properties: React.FC<PropertiesProps> = ({ path, properties, onSetProperty
               <td style={tableCell}>{name}</td>
               <td style={tableCell}>{value}</td>
               <td style={tableCell}>
-                <button 
-                  onClick={() => handleEditProperty(name, value)}
-                  style={buttonAction}
-                >
-                  Edit
-                </button>
-                <button 
-                  onClick={() => handleDeleteProperty(name)}
-                  style={buttonDelete}
-                >
-                  Delete
-                </button>
+                {canEdit && (
+                  <button 
+                    onClick={() => handleEditProperty(name, value)}
+                    style={buttonAction}
+                  >
+                    Edit
+                  </button>
+                )}
+                {canDelete && (
+                  <button 
+                    onClick={() => handleDeleteProperty(name)}
+                    style={buttonDelete}
+                  >
+                    Delete
+                  </button>
+                )}
               </td>
             </tr>
           ))}

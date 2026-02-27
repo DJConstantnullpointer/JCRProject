@@ -15,9 +15,10 @@ interface NodeItemProps {
   onAddNode: (parentPath: string, nodeName: string) => Promise<void>;
   onDeleteNode: (path: string) => Promise<void>;
   isRoot?: boolean;
+  isAdmin?: boolean;
 }
 
-const NodeItem: React.FC<NodeItemProps> = ({ node, onSelect, fetchChildren, onAddNode, onDeleteNode, isRoot }) => {
+const NodeItem: React.FC<NodeItemProps> = ({ node, onSelect, fetchChildren, onAddNode, onDeleteNode, isRoot, isAdmin }) => {
   const [expanded, setExpanded] = useState(isRoot ? true : false);
   const [children, setChildren] = useState<JcrNode[]>(node.children || []);
   const [loading, setLoading] = useState(false);
@@ -92,7 +93,9 @@ const NodeItem: React.FC<NodeItemProps> = ({ node, onSelect, fetchChildren, onAd
         >
           <span>{node.name}</span>
         </div>
-        <button className="action-button add" onClick={handleAddChild} title="Add Child Node">+</button>
+        {isAdmin && (
+          <button className="action-button add" onClick={handleAddChild} title="Add Child Node">+</button>
+        )}
         {!isRoot && (
           <button className="action-button delete" onClick={handleDelete} title="Delete Node">×</button>
         )}
@@ -111,6 +114,7 @@ const NodeItem: React.FC<NodeItemProps> = ({ node, onSelect, fetchChildren, onAd
               fetchChildren={fetchChildren}
               onAddNode={onAddNode}
               onDeleteNode={onDeleteNode}
+              isAdmin={isAdmin}
             />
           ))}
         </ul>
@@ -125,9 +129,10 @@ interface NodesProps {
   fetchChildren: (path: string) => Promise<JcrNode[]>;
   onAddNode: (parentPath: string, nodeName: string) => Promise<void>;
   onDeleteNode: (path: string) => Promise<void>;
+  isAdmin?: boolean;
 }
 
-const Nodes: React.FC<NodesProps> = ({ initialNodes, onSelect, fetchChildren, onAddNode, onDeleteNode }) => {
+const Nodes: React.FC<NodesProps> = ({ initialNodes, onSelect, fetchChildren, onAddNode, onDeleteNode, isAdmin }) => {
   const styles = `
     .nodes-sidebar { flex: 0 0 300px; max-width: 400px; min-width: 250px; border-right: 1px solid #ccc; padding-right: 20px; overflow-x: auto; }
     .nodes-sidebar h3 { margin-top: 0; }
@@ -161,6 +166,7 @@ const Nodes: React.FC<NodesProps> = ({ initialNodes, onSelect, fetchChildren, on
            onAddNode={onAddNode}
            onDeleteNode={onDeleteNode}
            isRoot={true}
+           isAdmin={isAdmin}
         />
       </ul>
     </div>

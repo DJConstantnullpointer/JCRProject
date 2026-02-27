@@ -10,6 +10,7 @@ const App: React.FC = () => {
   const [loadingProps, setLoadingProps] = useState(false);
   const [selectedPath, setSelectedPath] = useState('/oh');
   const [auth, setAuth] = useState<string | null>(localStorage.getItem('auth'));
+  const [username, setUsername] = useState<string | null>(localStorage.getItem('username'));
 
   const axiosConfig = {
     headers: {
@@ -97,14 +98,18 @@ const App: React.FC = () => {
     }
   };
 
-  const handleLogin = (credentials: string) => {
+  const handleLogin = (credentials: string, username: string) => {
     setAuth(credentials);
+    setUsername(username);
     localStorage.setItem('auth', credentials);
+    localStorage.setItem('username', username);
   };
 
   const handleLogout = () => {
     setAuth(null);
+    setUsername(null);
     localStorage.removeItem('auth');
+    localStorage.removeItem('username');
   };
 
   if (!auth) {
@@ -125,6 +130,7 @@ const App: React.FC = () => {
           fetchChildren={fetchChildren}
           onAddNode={handleAddNode}
           onDeleteNode={handleDeleteNode}
+          isAdmin={username === 'admin'}
         />
         <div style={mainContent}>
           {loadingProps ? (
@@ -132,6 +138,7 @@ const App: React.FC = () => {
           ) : (
             <Properties 
               path={selectedPath}
+              username={username || ''}
               properties={properties}
               onSetProperty={handleSetProperty}
               onDeleteProperty={handleDeleteProperty}

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 interface LoginProps {
-  onLogin: (credentials: string) => void;
+  onLogin: (credentials: string, username: string) => void;
 }
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
@@ -19,7 +19,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       });
       if (response.data.status === 'ok') {
         const credentials = btoa(`${username}:${password}`);
-        onLogin(credentials);
+        onLogin(credentials, username);
       }
     } catch (err) {
       setError('Invalid username or password');
